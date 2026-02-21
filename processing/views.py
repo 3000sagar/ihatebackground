@@ -178,22 +178,6 @@ def preview(request, job_id, kind):
     return FileResponse(open(path, "rb"), content_type=content_type or "application/octet-stream")
 
 
-def _stream_and_cleanup(path, job):
-    with open(path, "rb") as f:
-        while True:
-            chunk = f.read(8192)
-            if not chunk:
-                break
-            yield chunk
-    for p in [job.input_path, job.output_path]:
-        if p and os.path.exists(p):
-            try:
-                os.remove(p)
-            except OSError:
-                pass
-    job.delete()
-
-
 @require_GET
 def download(request, job_id):
     _best_effort_cleanup()
@@ -216,19 +200,9 @@ def download(request, job_id):
         content = composite_solid_background(job.output_path, bg)
         response = HttpResponse(content, content_type="image/png")
         response["Content-Disposition"] = f"attachment; filename={job.id}.png"
-        for p in [job.input_path, job.output_path]:
-            if p and os.path.exists(p):
-                try:
-                    os.remove(p)
-                except OSError:
-                    pass
-        job.delete()
         return response
 
-    response = HttpResponse(
-        _stream_and_cleanup(job.output_path, job),
-        content_type="image/png",
-    )
+    response = FileResponse(open(job.output_path, "rb"), content_type="image/png")
     response["Content-Disposition"] = f"attachment; filename={job.id}.png"
     return response
 

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Your Image Is Ready — ihatebackground{% endblock %}
+{% block page_css %}
+  <link rel="stylesheet" href="{% static 'css/result.css' %}" />
+{% endblock %}
+
+{% block content %}
+<section class="result-page">
+  {% if job.status == "done" %}
+    <div class="result-icon-toolbar" aria-label="Preview tools">
+      <button class="tool-icon-btn" type="button" id="tool-magic-eraser" title="Magic Eraser" aria-label="Magic Eraser">✦</button>
+      <button class="tool-icon-btn" type="button" id="tool-restore-mode" title="Restore mode" aria-label="Restore mode">⟲</button>
+      <button class="tool-icon-btn" type="button" id="tool-undo" title="Undo" aria-label="Undo">↶</button>
+      <button class="tool-icon-btn" type="button" id="tool-redo" title="Redo" aria-label="Redo">↷</button>
+      <label class="tool-size-wrap" title="Brush size" aria-label="Brush size">
+        <span class="tool-size-icon">◉</span>
+        <input id="tool-brush-size" class="tool-size-range" type="range" min="6" max="96" value="22" />
+      </label>
+      <button class="tool-icon-btn" type="button" id="tool-show-before" title="Show original" aria-label="Show original">◧</button>
+      <button class="tool-icon-btn" type="button" id="tool-show-after" title="Show result" aria-label="Show result">◨</button>
+      <button class="tool-icon-btn" type="button" id="tool-center-split" title="Center slider" aria-label="Center slider">╫</button>
+      <button class="tool-icon-btn" type="button" id="tool-auto-sweep" title="Auto compare" aria-label="Auto compare">↔</button>
+      <a class="tool-icon-btn" id="tool-download-png" href="{{ download_transparent_url }}" title="Download transparent PNG" aria-label="Download transparent PNG">⤓</a>
+      <a class="tool-icon-btn" id="tool-download-solid" href="{{ download_solid_url }}" title="Download solid background" aria-label="Download solid background">⬛</a>
+    </div>
+    <div class="result-card result-card-static is-ready">
+      <div class="result-head">
+        <h3>Preview</h3>
+        <p>Drag to compare.</p>
+      </div>
+      <div class="result-state-line">
+        <span class="state-dot"></span>
+        <span id="result-state-text">Loading...</span>
+      </div>
+      <div class="result-preview-shell">
+        <div class="result-preview-frame" id="result-preview-frame" data-ready="1" data-status-url="{% url 'processing:status' job.id %}" data-stream-url="{% url 'processing:status_stream' job.id %}" data-result-url="{% url 'processing:result' job.id %}">
+          <img class="preview-before" src="{{ before_url }}" alt="Original image preview" />
+          <div class="preview-after-wrap" id="preview-after-wrap">
+            <img class="preview-after" id="preview-after-img" src="{{ after_url }}" alt="Background removed preview" />
+            <canvas class="preview-after-canvas" id="preview-edit-canvas" aria-label="Edited result canvas"></canvas>
+          </div>
+          <div class="preview-processing-overlay" id="preview-processing-overlay" aria-hidden="true"></div>
+          <div class="preview-line" id="preview-line" aria-hidden="true">
+            <span class="preview-dot"></span>
+          </div>
+          <input
+            id="preview-slider"
+            class="preview-slider"
+            type="range"
+            min="0"
+            max="100"
+            value="52"
+            aria-label="Compare before and after"
+          />
+        </div>
+      </div>
+    </div>
+  {% elif job.status == "failed" %}
+    <div class="result-card result-card-static">
+      <div class="result-head">
+        <h3>Processing failed</h3>
+        <p>We could not finish your image. Try again with another upload.</p>
+      </div>
+      <a class="cta secondary" href="{% url 'core:landing' %}#upload">Back to upload</a>
+    </div>
+  {% else %}
+    <div class="result-card result-card-static is-processing">
+      <div class="result-head">
+        <h3>Processing...</h3>
+        <p>Please wait.</p>
+      </div>
+      <div class="result-state-line">
+        <span class="state-dot pulse"></span>
+        <span>Removing background</span>
+      </div>
+      <div class="result-preview-shell">
+        <div class="result-preview-frame processing-frame" id="result-preview-frame" data-ready="0" data-status-url="{% url 'processing:status' job.id %}" data-stream-url="{% url 'processing:status_stream' job.id %}" data-result-url="{% url 'processing:result' job.id %}">
+          <div class="processing-placeholder">
+            <img
+              class="processing-source-img"
+              src="{{ before_url }}"
+              alt="Uploaded image preview"
+            />
+            <div class="processing-dim-mask" aria-hidden="true"></div>
+            <div class="processing-active-window" aria-hidden="true"></div>
+            <span class="scan-beam"></span>
+            <span class="scan-glow"></span>
+          </div>
+        </div>
+      </div>
+      <pre class="processing-log" id="processing-log" aria-live="polite">[worker] job accepted
+[queue] waiting for GPU slot
+[model] preparing segmentation pipeline
+</pre>
+      <div class="result-actions">
+        <span class="processing-hint">This page updates automatically.</span>
+      </div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block page_js %}
+  {% if job.status != "failed" %}
+    <script src="{% static 'js/result.js' %}"></script>
+  {% endif %}
+{% endblock %}

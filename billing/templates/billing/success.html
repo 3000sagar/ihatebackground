@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Success — ihatebackground{% endblock %}
+
+{% block content %}
+<section class="pricing-page">
+  <h1>Payment successful</h1>
+  <p>Your unlimited access is active for the next 24 hours.</p>
+  <a class="cta primary" href="{% url 'core:landing' %}#upload">Start removing backgrounds</a>
+</section>
+{% endblock %}

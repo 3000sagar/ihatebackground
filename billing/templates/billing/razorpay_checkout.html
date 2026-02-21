@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Razorpay Checkout — ihatebackground{% endblock %}
+
+{% block content %}
+<section class="pricing-page">
+  <h1>Secure payment</h1>
+  <p>Pay once and unlock unlimited usage for 24 hours.</p>
+  <button id="rzp-button" class="cta primary">Pay ₹{{ display_amount|floatformat:0 }}</button>
+  <p id="pay-status" style="margin-top:10px; opacity:.8;"></p>
+</section>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  const getCookie = (name) => {
+    const cookies = document.cookie ? document.cookie.split(";") : [];
+    for (const item of cookies) {
+      const c = item.trim();
+      if (c.startsWith(name + "=")) return decodeURIComponent(c.slice(name.length + 1));
+    }
+    return "";
+  };
+
+  const setStatus = (text) => {
+    const el = document.getElementById("pay-status");
+    if (el) el.textContent = text;
+  };
+
+  const options = {
+    key: "{{ razorpay_key }}",
+    amount: "{{ amount }}",
+    currency: "INR",
+    name: "ihatebackground",
+    description: "Pro Subscription",
+    order_id: "{{ order_id }}",
+    prefill: { name: "{{ user_name|escapejs }}", email: "{{ user_email|escapejs }}" },
+    handler: async function (response) {
+      try {
+        setStatus("Verifying payment...");
+        const body = new URLSearchParams({
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_signature: response.razorpay_signature,
+        });
+        const res = await fetch("{% url 'billing:razorpay_verify' %}", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          },
+          body: body.toString(),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          setStatus(data.error || "Payment verification failed.");
+          return;
+        }
+        window.location.href = data.redirect || "/billing/success/";
+      } catch (e) {
+        setStatus("Payment verification failed.");
+      }
+    },
+    modal: {
+      ondismiss: function () { window.location.href = "/billing/cancel/"; }
+    }
+  };
+  document.getElementById("rzp-button").onclick = function (e) {
+    new Razorpay(options).open();
+    e.preventDefault();
+  };
+</script>
+{% endblock %}

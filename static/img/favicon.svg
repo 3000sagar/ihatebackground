@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    /* Default for dark browser tabs */
+    .i-shape {
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+```
+/* Auto switch for light mode */
+@media (prefers-color-scheme: light) {
+  .i-shape {
+    stroke: #000000;
+  }
+}
+
+/* Very subtle pulse (works in PWAs and modern browsers) */
+@keyframes faviconPulse {
+  0%   { stroke-width: 6; opacity: 1; }
+  50%  { stroke-width: 7; opacity: 0.9; }
+  100% { stroke-width: 6; opacity: 1; }
+}
+
+.animate {
+  animation: faviconPulse 2.5s ease-in-out infinite;
+}
+```
+
+  </style>
+
+
+  <!-- Background (remove this if you want full transparency) -->
+  <!-- <rect width="64" height="64" fill="#0b0f1a"/> -->
+
+  <!-- Dot of i -->
+  <circle cx="32" cy="14" r="5" fill="none" stroke="white" stroke-width="4"/>
+
+  <!-- Stem of i -->
+  <rect x="26" y="24" width="12" height="28"
+        fill="none" stroke="white" stroke-width="4"/>
+</svg>

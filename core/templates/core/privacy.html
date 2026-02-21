@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Privacy — ihatebackground{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}" />{% endblock %}
+
+{% block content %}
+<section class="privacy-page">
+  <h1>Privacy, by design</h1>
+  <p>We are built for zero retention. Your images are stored temporarily for processing only.</p>
+  <div class="privacy-points">
+    <div><h3>Auto-delete</h3><p>Deleted immediately after download or within {{ job_ttl_minutes }} minutes.</p></div>
+    <div><h3>No tracking</h3><p>No analytics scripts. No behavioral profiling. No retargeting.</p></div>
+    <div><h3>Secure temp storage</h3><p>Files live in isolated temp storage and are cleaned continuously.</p></div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}hatebackground — cinematic background removal{% endblock %}
+{% block body_class %}landing-page{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}" />{% endblock %}
+
+{% block content %}
+<div class="page-container">
+<section class="hero">
+  <div class="hero-visual" data-reveal>
+    <div class="scan-stage" id="hero-compare">
+      <div class="scan-frame">
+        <div class="scan-before" style="background-image: url('{% static 'img/pexels-caspersomia-20433618.jpg' %}');"></div>
+        <div class="scan-after" style="background-image: url('{% static 'img/pexels-caspersomia-20433618-removed.png' %}');"></div>
+        <div class="scan-handle" id="hero-handle"></div>
+        <input class="scan-slider overlay" id="hero-slider-overlay" type="range" min="0" max="100" value="50" aria-label="Compare before and after" />
+      </div>
+      <input class="scan-slider" id="hero-slider-track" type="range" min="0" max="100" value="50" aria-label="Compare before and after slider" />
+      <div class="scan-caption" id="hero-caption">Removing background...</div>
+    </div>
+  </div>
+  <div class="hero-copy">
+    <p class="eyebrow" data-reveal>Simple background remover</p>
+    <h1 data-reveal>Upload. Remove. Download.</h1>
+    <p class="subhead" data-reveal>
+      Clean cutouts with automatic deletion after processing.
+    </p>
+    <div class="hero-badges" data-reveal>
+      <span class="badge">Google sign-in</span>
+      <span class="badge">Auto-delete</span>
+    </div>
+    <div class="hero-actions" data-reveal>
+      <a class="cta primary" href="#upload">Upload image</a>
+      <span class="trust">Login is required before upload.</span>
+    </div>
+  </div>
+</section>
+
+<section id="upload" class="upload">
+  <div class="upload-card upload-card-simple" data-reveal>
+    <h2>Drop image here</h2>
+    <p>PNG, JPG, WEBP. Click or drop to upload.</p>
+    <form
+      id="upload-form"
+      class="upload-form upload-form-simple"
+      data-authenticated="{% if request.user.is_authenticated %}1{% else %}0{% endif %}"
+      data-login-url="{% url 'users:login' %}"
+    >
+      <label class="file-drop" for="image-input">
+        <input type="file" name="image" id="image-input" accept=".png,.jpg,.jpeg,.webp" required />
+        <div class="file-drop-inner">
+          <span class="file-icon" aria-hidden="true">HEX</span>
+          <div>
+            <strong class="file-title">Upload image here</strong>
+            <div class="file-meta">Auto-delete in {{ job_ttl_minutes }} min after processing.</div>
+          </div>
+        </div>
+      </label>
+    </form>
+    <p class="privacy-note" id="upload-status" aria-live="polite"></p>
+  </div>
+</section>
+</div>
+{% endblock %}
+
+{% block page_js %}
+  <script src="{% static 'js/landing.js' %}"></script>
+  <script src="{% static 'js/upload-card.js' %}"></script>
+{% endblock %}

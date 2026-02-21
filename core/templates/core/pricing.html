@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pricing — ihatebackground{% endblock %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/landing.css' %}" />{% endblock %}
+
+{% block content %}
+<section class="pricing-page">
+  <h1>Simple, premium pricing</h1>
+  <p>Choose the plan that fits your workflow. Cancel anytime.</p>
+  <div class="pricing-grid">
+    <div class="plan">
+      <h3>Free</h3>
+      <p class="price">$0</p>
+      <ul>
+        <li>{{ free_daily_limit }} images/day</li>
+        <li>Lower resolution</li>
+        <li>Standard speed</li>
+      </ul>
+      <a class="cta secondary" href="{% url 'core:landing' %}#upload">Try free</a>
+    </div>
+    <div class="plan featured">
+      <h3>Pro</h3>
+      <p class="price">₹9 / 24h</p>
+      <ul>
+        <li>Unlimited removals</li>
+        <li>Full resolution</li>
+        <li>All premium tools</li>
+      </ul>
+      <div class="pricing-actions">
+        <a class="cta primary" href="{% url 'billing:razorpay_checkout' %}">Pay with Razorpay</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

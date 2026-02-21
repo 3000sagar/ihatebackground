@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Canceled — ihatebackground{% endblock %}
+
+{% block content %}
+<section class="pricing-page">
+  <h1>Payment canceled</h1>
+  <p>No charges were made. You can try again anytime.</p>
+  <a class="cta secondary" href="{% url 'core:pricing' %}">Back to pricing</a>
+</section>
+{% endblock %}

@@ -123,6 +123,10 @@ MAX_UPLOAD_MB = int(os.environ.get("MAX_UPLOAD_MB", "15"))
 JOB_TTL_MINUTES = int(os.environ.get("JOB_TTL_MINUTES", "10"))
 FREE_DAILY_LIMIT = int(os.environ.get("FREE_DAILY_LIMIT", "5"))
 FREE_MAX_EDGE = int(os.environ.get("FREE_MAX_EDGE", "1400"))
+REMBG_MODEL = os.environ.get("REMBG_MODEL", "u2netp")
+REMBG_WORK_MAX_EDGE = int(os.environ.get("REMBG_WORK_MAX_EDGE", "1600"))
+REMBG_ALPHA_MATTING = os.environ.get("REMBG_ALPHA_MATTING", "0") == "1"
+REMBG_POST_PROCESS_MASK = os.environ.get("REMBG_POST_PROCESS_MASK", "1") == "1"
 RATELIMIT_UPLOAD_PER_MIN = os.environ.get("RATELIMIT_UPLOAD_PER_MIN", "60/m")
 RATELIMIT_UPLOAD_PER_DAY = os.environ.get("RATELIMIT_UPLOAD_PER_DAY", "1000/d")
 

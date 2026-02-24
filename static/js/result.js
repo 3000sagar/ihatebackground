@@ -138,8 +138,19 @@
         usingPolling = true;
         try {
           const res = await fetch(statusUrl, { cache: "no-store" });
+          let data = null;
+          try {
+            data = await res.json();
+          } catch (e) {
+            data = {};
+          }
+          if (res.status === 404) {
+            const msg = data.error || "Job expired or not found. Please upload again.";
+            if (stateText) stateText.textContent = msg;
+            appendLog(`[${stamp()}] [expired] ${msg}`);
+            return;
+          }
           if (!res.ok) throw new Error("status request failed");
-          const data = await res.json();
           if (handleStatus(data)) return;
         } catch (err) {
           appendLog(`[${stamp()}] [retry] waiting for status endpoint`);

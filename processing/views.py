@@ -99,7 +99,10 @@ def status(request, job_id):
     try:
         job = ProcessingJob.objects.get(id=job_id)
     except ProcessingJob.DoesNotExist:
-        raise Http404
+        return JsonResponse(
+            {"status": "failed", "error": "Job not found or expired."},
+            status=404,
+        )
     data = {
         "status": job.status,
         "stage": _stage_label(job.stage),

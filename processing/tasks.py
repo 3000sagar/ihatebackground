@@ -1,7 +1,9 @@
 import os
+from datetime import timedelta
 
 from celery import shared_task
 from django.conf import settings
+from django.utils import timezone
 
 from .cleanup import cleanup_expired_data
 from .models import ProcessingJob
@@ -18,12 +20,14 @@ def process_image(job_id: str) -> None:
     def set_stage(stage: str, progress: int) -> None:
         job.stage = stage
         job.progress = max(0, min(100, int(progress)))
-        job.save(update_fields=["stage", "progress", "updated_at"])
+        job.expires_at = timezone.now() + timedelta(minutes=settings.JOB_TTL_MINUTES)
+        job.save(update_fields=["stage", "progress", "expires_at", "updated_at"])
 
     job.status = "processing"
     job.stage = "queued_in_worker"
     job.progress = 5
-    job.save(update_fields=["status", "stage", "progress", "updated_at"])
+    job.expires_at = timezone.now() + timedelta(minutes=settings.JOB_TTL_MINUTES)
+    job.save(update_fields=["status", "stage", "progress", "expires_at", "updated_at"])
     try:
         set_stage("loading_image", 15)
         output_path = os.path.join(settings.TEMP_DIR, f"{job.id}_out.png")
@@ -34,11 +38,13 @@ def process_image(job_id: str) -> None:
         job.output_path = output_path
         job.stage = "saving_output"
         job.progress = 96
-        job.save(update_fields=["output_path", "stage", "progress", "updated_at"])
+        job.expires_at = timezone.now() + timedelta(minutes=settings.JOB_TTL_MINUTES)
+        job.save(update_fields=["output_path", "stage", "progress", "expires_at", "updated_at"])
         job.status = "done"
         job.stage = "complete"
         job.progress = 100
-        job.save(update_fields=["status", "stage", "progress", "updated_at"])
+        job.expires_at = timezone.now() + timedelta(minutes=settings.JOB_TTL_MINUTES)
+        job.save(update_fields=["status", "stage", "progress", "expires_at", "updated_at"])
     except Exception as exc:
         job.status = "failed"
         job.stage = "failed"

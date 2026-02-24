@@ -23,7 +23,14 @@ def cleanup_expired_data() -> dict[str, int]:
     now = timezone.now()
     cutoff = now - timedelta(minutes=settings.JOB_TTL_MINUTES)
 
-    expired_jobs = ProcessingJob.objects.filter(expires_at__lt=now)
+    expired_jobs = ProcessingJob.objects.filter(
+        expires_at__lt=now,
+        status__in=["done", "failed"],
+    )
+    stale_incomplete_jobs = ProcessingJob.objects.filter(
+        status__in=["queued", "processing"],
+        updated_at__lt=now - timedelta(hours=24),
+    )
     active_jobs = ProcessingJob.objects.filter(expires_at__gte=now).only(
         "input_path", "output_path"
     )
@@ -39,6 +46,13 @@ def cleanup_expired_data() -> dict[str, int]:
     jobs_deleted = 0
 
     for job in expired_jobs:
+        files_deleted += int(_safe_remove(job.input_path))
+        files_deleted += int(_safe_remove(job.output_path))
+        job.delete()
+        jobs_deleted += 1
+
+    # Cleanup stuck/incomplete jobs only after a long grace window.
+    for job in stale_incomplete_jobs:
         files_deleted += int(_safe_remove(job.input_path))
         files_deleted += int(_safe_remove(job.output_path))
         job.delete()
